@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ninjasdontcry · 戦国英雄録 · Shokuho Heroes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Shippori+Mincho+B1:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════════ */
+:root {
+  --ink:        #f0e8d0;
+  --parchment:  #0c0a07;
+  --paper:      #1b1710;
+  --ash:        #3c3428;
+  --stone:      #a09070;
+  --blood:      #a81a1a;
+  --gold:       #c8922a;
+  --gold-lt:    #e8c060;
+  --jade:       #3a8870;
+  --jade-lt:    #5aaa90;
+  --shadow:     rgba(0,0,0,0.6);
+  --seal:       #a81a1a;
+}
+
+/* ═══════════════════════════════════════════════════
+   RESET / BASE
+═══════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Crimson Pro', Georgia, serif;
+  background: var(--parchment);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Ink wash atmosphere */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 100% 55% at 50% 0%, rgba(200,146,42,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 15% 100%, rgba(168,26,26,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 60% at 85% 100%, rgba(58,136,112,0.03) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"),
+    var(--parchment);
+  pointer-events: none;
+}
+
+/* Enso (zen circle) background watermark */
+body::after {
+  content: '';
+  position: fixed;
+  width: 65vmin; height: 65vmin;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(200,146,42,0.035);
+  box-shadow:
+    0 0 0 18px rgba(200,146,42,0.018),
+    0 0 0 55px rgba(200,146,42,0.008);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════════ */
+.scroll-banner {
+  position: relative; z-index: 10;
+  background: rgba(10,8,5,0.97);
+  border-bottom: 1px solid var(--gold);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 80px;
+  backdrop-filter: blur(6px);
+}
+
+/* Double-stripe bottom decoration */
+.scroll-banner::after {
+  content: '';
+  position: absolute; bottom: -7px; left: 0; right: 0; height: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--gold) 0, var(--gold) 6px, transparent 6px, transparent 12px,
+    rgba(200,146,42,0.35) 12px, rgba(200,146,42,0.35) 14px, transparent 14px, transparent 22px
+  );
+}
+
+.site-title {
+  font-family: 'Cinzel', serif;
+  color: var(--gold);
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.15;
+}
+
+.site-title-sep { color: var(--stone); font-weight: 400; }
+
+.site-title .jp-text {
+  font-family: 'Shippori Mincho B1', 'Cinzel', serif;
+  font-weight: 800;
+}
+
+.site-title span {
+  display: block;
+  font-size: 0.55em;
+  color: rgba(160,144,112,0.55);
+  letter-spacing: 0.25em;
+  font-weight: 400;
+  font-family: 'Cinzel', serif;
+}
+
+.nav-links {
+  display: flex; gap: 1.5rem; list-style: none;
+}
+
+.nav-links a {
+  font-family: 'Cinzel', serif;
+  color: var(--stone);
+  text-decoration: none;
+  font-size: 0.78rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover, .nav-links a.active { color: var(--gold); }
+
+.global-stats {
+  display: flex; gap: 1.5rem;
+}
+
+.gstat {
+  text-align: center;
+  font-family: 'Cinzel', serif;
+}
+
+.gstat-val {
+  display: block;
+  color: var(--gold-lt);
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.gstat-label {
+  display: block;
+  color: var(--stone);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ═══════════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════════ */
+.page { position: relative; z-index: 1; }
+
+.page-section { display: none; }
+.page-section.active { display: block; }
+
+/* ═══════════════════════════════════════════════════
+   HERO GRID
+═══════════════════════════════════════════════════ */
+.heroes-header {
+  text-align: center;
+  padding: 3rem 2rem 1.5rem;
+}
+
+.kanji-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.6rem, 4vw, 2.8rem);
+  font-weight: 900;
+  color: var(--gold-lt);
+  letter-spacing: 0.08em;
+  position: relative;
+  display: inline-block;
+}
+
+.kanji-title::before {
+  content: '—— ';
+  color: var(--blood);
+  letter-spacing: 0;
+}
+
+.kanji-title::after {
+  content: ' ——';
+  color: var(--blood);
+  letter-spacing: 0;
+}
+
+.filter-bar {
+  display: flex; justify-content: center; gap: 0.6rem; flex-wrap: wrap;
+  padding: 1rem 2rem;
+}
+
+.filter-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid var(--ash);
+  color: var(--stone);
+  padding: 0.35rem 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover, .filter-btn.active {
+  background: rgba(200,146,42,0.12);
+  border-color: var(--gold);
+  color: var(--gold-lt);
+}
+
+.search-row {
+  display: flex; justify-content: center;
+  padding: 0 2rem 1.5rem;
+}
+
+#search-input {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--ash);
+  border-radius: 0;
+  padding: 0.5rem 1rem;
+  width: min(400px, 100%);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#search-input:focus { border-color: var(--gold); }
+#search-input::placeholder { color: var(--stone); opacity: 0.6; }
+
+.heroes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 2rem 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ═══════════════════════════════════════════════════
+   HERO CARD
+═══════════════════════════════════════════════════ */
+.hero-card {
+  background: var(--paper);
+  border: 1px solid var(--ash);
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  animation: fadeIn 0.4s ease both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--gold);
+  box-shadow:
+    0 14px 45px rgba(0,0,0,0.75),
+    0 0 0 1px var(--gold),
+    0 0 35px rgba(200,146,42,0.10);
+}
+
+/* Декоративные золотые углы */
+.hero-card::before,
+.hero-card::after {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  border-color: var(--gold);
+  border-style: solid;
+  opacity: 0.45;
+  transition: opacity 0.25s;
+}
+.hero-card::before { top: 5px; left: 5px; border-width: 1px 0 0 1px; }
+.hero-card::after  { bottom: 5px; right: 5px; border-width: 0 1px 1px 0; }
+.hero-card:hover::before, .hero-card:hover::after { opacity: 1; }
+
+.card-portrait {
+  width: 100%;
+  background: linear-gradient(165deg, #1e1508 0%, #0c0a06 100%);
+  display: flex; flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  padding: 0.7rem 0.8rem 0.5rem;
+  gap: 0.4rem;
+  min-height: 95px;
+}
+
+/* Warm radial glow in portrait */
+.card-portrait::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(200,146,42,0.09) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Полоса иконок снаряжения */
+.card-equip-row {
+  display: flex; gap: 4px; flex-wrap: wrap; align-items: center;
+  position: relative; z-index: 1;
+}
+
+.card-equip-icon {
+  width: 32px; height: 32px;
+  background: rgba(200,146,42,0.07);
+  border: 1px solid rgba(200,146,42,0.2);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.card-equip-icon:hover {
+  background: rgba(200,146,42,0.15);
+  border-color: var(--gold);
+}
+
+.card-equip-icon svg {
+  width: 20px; height: 20px;
+  fill: var(--gold);
+  opacity: 0.82;
+}
+
+.card-equip-icon.custom {
+  border-color: var(--gold);
+  background: rgba(200,146,42,0.14);
+}
+
+.card-equip-icon.custom::after {
+  content: '✦';
+  position: absolute;
+  top: -5px; right: -4px;
+  font-size: 8px;
+  color: var(--gold-lt);
+  line-height: 1;
+}
+
+/* Класс + культура внутри панели */
+.card-panel-meta {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-top: auto;
+  position: relative; z-index: 1;
+}
+
+.card-panel-class {
+  font-family: 'Cinzel', serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.portrait-svg {
+  width: 100%; height: 100%;
+}
+
+.card-culture-badge {
+  position: absolute;
+  top: 8px; right: 8px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--gold-lt);
+  background: rgba(12,10,7,0.82);
+  padding: 2px 8px;
+  border: 1px solid rgba(200,146,42,0.35);
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+.card-tier-badge {
+  position: absolute;
+  bottom: 8px; left: 8px;
+  display: flex; gap: 3px;
+  z-index: 1;
+}
+
+.tier-pip {
+  width: 6px; height: 6px;
+  background: var(--gold);
+  opacity: 0.18;
+}
+
+.tier-pip.filled { opacity: 1; }
+
+.card-body {
+  padding: 0.9rem 1rem 1rem;
+  border-top: 1px solid var(--ash);
+  background: var(--parchment);
+}
+
+.card-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-viewer {
+  font-size: 0.78rem;
+  color: var(--stone);
+  margin-top: 1px;
+  font-style: italic;
+}
+
+.card-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 0.6rem;
+}
+
+.card-class {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-lt);
+  background: rgba(200,146,42,0.1);
+  padding: 2px 7px;
+  border: 1px solid rgba(200,146,42,0.3);
+}
+
+.card-clan {
+  font-size: 0.72rem;
+  color: var(--jade);
+  font-style: italic;
+}
+
+.card-stats {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.3rem; margin-top: 0.8rem;
+  border-top: 1px solid var(--ash);
+  padding-top: 0.7rem;
+}
+
+.cstat {
+  text-align: center;
+}
+
+.cstat-val {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.cstat-label {
+  display: block;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  color: var(--stone);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.card-hp-bar {
+  margin-top: 0.6rem;
+  height: 4px;
+  background: var(--ash);
+  overflow: hidden;
+}
+
+.card-hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--jade) 0%, var(--jade-lt) 100%);
+  transition: width 0.5s ease;
+}
+
+/* Fallen hero */
+.hero-card.dead {
+  opacity: 0.48;
+  filter: grayscale(0.9) sepia(0.15);
+}
+
+.hero-card.dead::before, .hero-card.dead::after {
+  border-color: var(--blood);
+  opacity: 0.65;
+}
+
+.hero-card.dead:hover {
+  border-color: var(--blood);
+  box-shadow: 0 10px 35px rgba(0,0,0,0.8), 0 0 0 1px var(--blood), 0 0 22px rgba(168,26,26,0.1);
+}
+
+/* ═══════════════════════════════════════════════════
+   HERO DETAIL MODAL
+═══════════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.9);
+  backdrop-filter: blur(5px);
+  display: none; align-items: flex-start; justify-content: center;
+  padding: 2rem 1rem;
+  overflow-y: auto;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--paper);
+  width: min(900px, 100%);
+  position: relative;
+  border: 1px solid var(--ash);
+  box-shadow:
+    0 28px 100px rgba(0,0,0,0.92),
+    0 0 0 1px rgba(200,146,42,0.1);
+  animation: modalIn 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.97) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal::before, .modal::after {
+  content: '';
+  position: absolute;
+  width: 22px; height: 22px;
+  border-color: var(--gold);
+  border-style: solid;
+  opacity: 0.55;
+}
+.modal::before { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+.modal::after  { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+.modal-close {
+  position: absolute; top: 12px; right: 16px;
+  background: none; border: none;
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  color: var(--stone);
+  cursor: pointer;
+  z-index: 2;
+  transition: color 0.2s;
+}
+.modal-close:hover { color: var(--blood); }
+
+.modal-hero-banner {
+  display: flex; flex-direction: column;
+  border-bottom: 1px solid var(--ash);
+  padding: 1.5rem 2rem 1.2rem;
+  background: linear-gradient(170deg, rgba(200,146,42,0.08) 0%, transparent 65%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Torii watermark in banner */
+.modal-hero-banner::after {
+  content: '⛩';
+  position: absolute;
+  right: 2.2rem; bottom: 0.5rem;
+  font-size: 3.5rem;
+  opacity: 0.04;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.modal-hero-info {
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
+
+.modal-hero-name {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: 0.06em;
+}
+
+.modal-viewer-tag {
+  font-size: 0.85rem;
+  color: var(--stone);
+  font-style: italic;
+  margin-top: 3px;
+}
+
+.modal-created {
+  font-size: 0.7rem;
+  color: rgba(160,144,112,0.55);
+  margin-top: 3px;
+  letter-spacing: 0.05em;
+}
+
+.modal-badges {
+  display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.8rem;
+}
+
+.badge {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border: 1px solid;
+}
+
+.badge-class  { color: var(--gold-lt); border-color: var(--gold);  background: rgba(200,146,42,0.1); }
+.badge-clan   { color: var(--jade-lt); border-color: var(--jade);  background: rgba(58,136,112,0.1); }
+.badge-kingdom{ color: var(--gold-lt); border-color: var(--gold);  background: rgba(200,146,42,0.08); }
+.badge-culture{ color: var(--stone);   border-color: var(--ash);   background: transparent; }
+
+.modal-stat-row {
+  display: flex; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;
+}
+
+.modal-stat { text-align: left; }
+
+.modal-stat-val {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.modal-stat-label {
+  font-size: 0.63rem;
+  letter-spacing: 0.2em;
+  color: var(--stone);
+  text-transform: uppercase;
+}
+
+/* HP bar в модалке */
+.hp-row {
+  display: flex; align-items: center; gap: 0.8rem; margin-top: 0.8rem;
+}
+
+.hp-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: var(--ash);
+  overflow: hidden;
+}
+
+.hp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--jade) 0%, var(--jade-lt) 100%);
+  transition: width 0.6s ease;
+}
+
+.hp-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  color: var(--stone);
+  white-space: nowrap;
+}
+
+/* ─── Табы модалки ─── */
+.modal-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--ash);
+  background: rgba(0,0,0,0.28);
+  overflow-x: auto;
+}
+
+.modal-tab {
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.75rem 1.2rem;
+  background: none;
+  border: none;
+  color: var(--stone);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.modal-tab:hover { color: var(--gold-lt); }
+.modal-tab.active { color: var(--gold-lt); border-bottom-color: var(--gold); }
+
+.modal-tab-content { display: none; padding: 1.5rem; }
+.modal-tab-content.active { display: block; }
+
+/* Statistics tab */
+.stats-section { margin-bottom: 1.4rem; }
+.stats-section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-lt);
+  border-bottom: 1px solid rgba(200,146,42,0.2);
+  padding-bottom: 0.35rem;
+  margin-bottom: 0.85rem;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.6rem;
+}
+.stat-cell {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--ash);
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  transition: border-color 0.2s;
+}
+.stat-cell:hover { border-color: rgba(200,146,42,0.3); }
+.stat-cell-val {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+.stat-cell-val.gold-val { color: var(--gold); }
+.stat-cell-label {
+  font-size: 0.7rem;
+  color: var(--stone);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.stat-cell-sub {
+  font-size: 0.65rem;
+  color: var(--stone);
+  margin-top: 0.2rem;
+  line-height: 1.4;
+}
+.stat-cell-sub span { color: rgba(160,144,112,0.75); }
+
+/* Equipment grid */
+.equip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.7rem;
+}
+
+.equip-slot {
+  border: 1px solid var(--ash);
+  background: rgba(255,255,255,0.015);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.equip-slot:hover { border-color: rgba(200,146,42,0.3); }
+
+.equip-slot.custom-item {
+  border-color: rgba(200,146,42,0.45);
+  background: rgba(200,146,42,0.04);
+}
+
+.equip-slot-header {
+  display: flex; gap: 0.6rem; align-items: flex-start;
+  padding: 0.65rem 0.75rem 0.5rem;
+  border-bottom: 1px solid rgba(60,52,40,0.55);
+}
+
+.equip-icon-wrap {
+  width: 44px; height: 44px; flex-shrink: 0;
+  background: linear-gradient(160deg, #1e1508, #2a1d08);
+  border: 1px solid rgba(200,146,42,0.28);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.equip-icon-wrap svg {
+  width: 28px; height: 28px;
+  fill: var(--gold);
+  opacity: 0.9;
+}
+
+.equip-slot-info { flex: 1; min-width: 0; }
+
+.equip-slot-type {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  color: var(--stone);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.equip-slot-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.equip-custom-label {
+  font-size: 0.65rem;
+  color: var(--gold);
+  font-style: italic;
+  margin-top: 2px;
+  display: flex; align-items: center; gap: 3px;
+}
+
+/* Stats section */
+.equip-stats {
+  padding: 0.5rem 0.75rem 0.6rem;
+  display: flex; flex-wrap: wrap; gap: 0.3rem 0.8rem;
+}
+
+.estat {
+  display: flex; flex-direction: column;
+  min-width: 50px;
+}
+
+.estat-val {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.estat-val.high  { color: var(--jade-lt); }
+.estat-val.med   { color: var(--gold); }
+.estat-val.dmg   { color: var(--blood); }
+
+.estat-label {
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  color: var(--stone);
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+/* Tier dots at bottom */
+.equip-tier-row {
+  display: flex; align-items: center; gap: 4px;
+  padding: 0 0.75rem 0.55rem;
+  margin-top: auto;
+}
+
+.equip-tier-dot {
+  width: 6px; height: 6px;
+  background: var(--gold);
+  opacity: 0.15;
+}
+
+.equip-tier-dot.on { opacity: 1; }
+
+.equip-slot-weight {
+  margin-left: auto;
+  font-size: 0.6rem;
+  color: var(--stone);
+  font-style: italic;
+}
+
+/* Skills */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.skill-row {
+  display: flex; align-items: center; gap: 0.6rem;
+}
+
+.skill-name {
+  font-size: 0.82rem;
+  color: var(--stone);
+  min-width: 90px;
+}
+
+.skill-bar-wrap {
+  flex: 1;
+  height: 4px;
+  background: var(--ash);
+  overflow: hidden;
+}
+
+.skill-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--gold-lt) 100%);
+}
+
+.skill-val {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ink);
+  min-width: 28px;
+  text-align: right;
+}
+
+/* Event log */
+.event-log { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.event-item {
+  display: flex; gap: 0.8rem; align-items: flex-start;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(60,52,40,0.5);
+}
+
+.event-icon {
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.event-desc {
+  flex: 1;
+  font-size: 0.88rem;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.event-time {
+  font-size: 0.7rem;
+  color: var(--stone);
+  font-style: italic;
+  white-space: nowrap;
+}
+
+/* Retinue */
+.retinue-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.retinue-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--ash);
+  background: rgba(255,255,255,0.015);
+  transition: border-color 0.2s;
+}
+
+.retinue-item:hover { border-color: rgba(200,146,42,0.25); }
+
+.retinue-name { font-size: 0.9rem; }
+.retinue-tier { font-family: 'Cinzel', serif; font-size: 0.65rem; color: var(--gold); letter-spacing: 0.15em; }
+
+/* ═══════════════════════════════════════════════════
+   LEADERBOARD
+═══════════════════════════════════════════════════ */
+.leaderboard-wrap {
+  max-width: 900px; margin: 0 auto;
+  padding: 2rem;
+}
+
+.lb-header {
+  text-align: center;
+  padding-bottom: 1.5rem;
+}
+
+.lb-tabs {
+  display: flex; justify-content: center; gap: 0.5rem;
+  margin-bottom: 1.5rem; flex-wrap: wrap;
+}
+
+.lb-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.lb-table thead tr {
+  border-bottom: 2px solid var(--gold);
+}
+
+.lb-table th {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--stone);
+  text-transform: uppercase;
+  padding: 0.5rem 0.8rem;
+  text-align: left;
+}
+
+.lb-table td {
+  padding: 0.7rem 0.8rem;
+  border-bottom: 1px solid rgba(60,52,40,0.5);
+  font-size: 0.9rem;
+}
+
+.lb-table tr:hover td { background: rgba(200,146,42,0.03); }
+
+.lb-rank {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--stone);
+}
+
+.lb-rank.gold   { color: #c8922a; }
+.lb-rank.silver { color: #8a8a8a; }
+.lb-rank.bronze { color: #9b6e40; }
+
+.lb-hero-link {
+  font-family: 'Cinzel', serif;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--ash);
+  transition: text-decoration-color 0.2s;
+}
+
+.lb-hero-link:hover { text-decoration-color: var(--gold); }
+
+.lb-val {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--gold-lt);
+}
+
+/* ═══════════════════════════════════════════════════
+   LOADING / EMPTY
+═══════════════════════════════════════════════════ */
+.loading {
+  text-align: center;
+  padding: 4rem 2rem;
+  font-family: 'Cinzel', serif;
+  color: var(--stone);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.loading::after {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+  0%   { content: ''; }
+  33%  { content: '·'; }
+  66%  { content: '··'; }
+  100% { content: '···'; }
+}
+
+.empty-state {
+  text-align: center; padding: 4rem 2rem;
+  color: var(--stone); font-style: italic;
+  font-size: 0.9rem;
+}
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .modal-hero-banner { grid-template-columns: 1fr; }
+  .modal-portrait { height: 160px; }
+  .global-stats { display: none; }
+  .nav-links { gap: 0.8rem; }
+  .modal-tabs { overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── HEADER ─── -->
+<header class="scroll-banner">
+  <div class="site-title">
+    ninjasdontcry <span class="site-title-sep">·</span> <span class="jp-text">戦国英雄録</span>
+    <span>Bannerlord Shokuho · Hero Registry</span>
+  </div>
+  <nav>
+    <ul class="nav-links">
+      <li><a href="#" class="active" data-page="heroes">Heroes</a></li>
+      <li><a href="#" data-page="leaderboard">Leaderboard</a></li>
+    </ul>
+  </nav>
+  <div class="global-stats" id="global-stats">
+    <div class="gstat"><span class="gstat-val" id="stat-heroes">—</span><span class="gstat-label">Heroes</span></div>
+    <div class="gstat"><span class="gstat-val" id="stat-kills">—</span><span class="gstat-label">Total Kills</span></div>
+    <div class="gstat"><span class="gstat-val" id="stat-events">—</span><span class="gstat-label">Events</span></div>
+  </div>
+</header>
+
+<!-- ─── HEROES PAGE ─── -->
+<div class="page">
+  <section class="page-section active" id="page-heroes">
+    <div class="heroes-header">
+      <h1 class="kanji-title">Hall of Heroes</h1>
+    </div>
+    <div class="filter-bar" id="filter-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="alive">Alive</button>
+      <button class="filter-btn" data-filter="dead">Fallen</button>
+    </div>
+    <div class="search-row">
+      <input type="text" id="search-input" placeholder="Search by name or viewer...">
+    </div>
+    <div class="heroes-grid" id="heroes-grid">
+      <div class="loading">Loading heroes</div>
+    </div>
+  </section>
+
+  <!-- ─── LEADERBOARD PAGE ─── -->
+  <section class="page-section" id="page-leaderboard">
+    <div class="leaderboard-wrap">
+      <div class="lb-header">
+        <h1 class="kanji-title">Leaderboard</h1>
+      </div>
+      <div class="lb-tabs" id="lb-tabs">
+        <button class="filter-btn active" data-lb="kills">Kills</button>
+        <button class="filter-btn" data-lb="gold_earned">Gold Earned</button>
+        <button class="filter-btn" data-lb="tournament_wins">Tournaments</button>
+        <button class="filter-btn" data-lb="battles_fought">Battles</button>
+      </div>
+      <div id="lb-content"><div class="loading">Loading</div></div>
+    </div>
+  </section>
+</div>
+
+<!-- ─── HERO DETAIL MODAL ─── -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modal-close">✕</button>
+
+    <div class="modal-hero-banner">
+      <div class="modal-hero-info">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem">
+          <div>
+            <div class="modal-hero-name" id="modal-name">—</div>
+            <div class="modal-viewer-tag" id="modal-viewer">—</div>
+            <div class="modal-created" id="modal-created"></div>
+          </div>
+          <div class="modal-badges" id="modal-badges"></div>
+        </div>
+        <div>
+          <div class="modal-stat-row" id="modal-stat-row"></div>
+          <div class="hp-row">
+            <div class="hp-bar-wrap">
+              <div class="hp-bar-fill" id="modal-hp-fill" style="width:100%"></div>
+            </div>
+            <span class="hp-label" id="modal-hp-label">— / —</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-tabs">
+      <button class="modal-tab active" data-tab="equipment">Equipment</button>
+      <button class="modal-tab" data-tab="skills">Skills</button>
+      <button class="modal-tab" data-tab="retinue">Retinue</button>
+      <button class="modal-tab" data-tab="stats">Statistics</button>
+      <button class="modal-tab" data-tab="log">Event Log</button>
+    </div>
+
+    <div class="modal-tab-content active" id="tab-equipment"></div>
+    <div class="modal-tab-content" id="tab-skills"></div>
+    <div class="modal-tab-content" id="tab-retinue"></div>
+    <div class="modal-tab-content" id="tab-stats"></div>
+    <div class="modal-tab-content" id="tab-log"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════
+// Установи свой Cloudflare Tunnel URL здесь:
+const API = window.BLT_API_URL || 'https://chosen-contemporary-lovers-materials.trycloudflare.com';
+
+// ═══════════════════════════════════════════════════
+//  ITEM ICONS — SVG paths по типу предмета
+//  Источник: game-icons.net (CC BY 3.0)
+// ═══════════════════════════════════════════════════
+const ITEM_ICONS = {
+  HeadArmor:       `<svg viewBox="0 0 100 100"><path d="M50 10 C25 10 15 30 15 50 C15 62 20 72 28 78 L28 85 L72 85 L72 78 C80 72 85 62 85 50 C85 30 75 10 50 10Z M35 85 L35 90 L65 90 L65 85Z"/></svg>`,
+  BodyArmor:       `<svg viewBox="0 0 100 100"><path d="M30 15 L20 30 L20 70 L35 80 L35 55 L65 55 L65 80 L80 70 L80 30 L70 15 L58 22 L50 18 L42 22Z"/></svg>`,
+  LegArmor:        `<svg viewBox="0 0 100 100"><path d="M30 10 L30 55 L20 55 L20 90 L38 90 L38 65 L45 65 L45 90 L55 90 L55 65 L62 65 L62 90 L80 90 L80 55 L70 55 L70 10Z"/></svg>`,
+  HandArmor:       `<svg viewBox="0 0 100 100"><path d="M25 40 L25 75 Q25 88 40 88 L60 88 Q75 88 75 75 L75 40 L65 35 L65 55 L60 55 L60 30 L52 25 L52 55 L48 55 L48 22 L40 22 L40 55 L35 55 L35 35Z"/></svg>`,
+  Cape:            `<svg viewBox="0 0 100 100"><path d="M20 15 Q50 25 80 15 L85 80 Q65 70 50 85 Q35 70 15 80Z"/></svg>`,
+  HorseHarness:    `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="35" ry="22"/><path d="M15 50 Q10 35 25 28 M85 50 Q90 35 75 28 M30 72 L30 85 M70 72 L70 85 M20 50 L80 50"/></svg>`,
+  // Weapons
+  OneHandedWeapon: `<svg viewBox="0 0 100 100"><rect x="47" y="8" width="6" height="58" rx="1"/><rect x="30" y="40" width="40" height="5" rx="2"/><rect x="45" y="65" width="10" height="22" rx="3"/></svg>`,
+  TwoHandedWeapon: `<svg viewBox="0 0 100 100"><rect x="47" y="5" width="6" height="65" rx="1"/><rect x="28" y="42" width="44" height="5" rx="2"/><rect x="45" y="70" width="10" height="25" rx="3"/></svg>`,
+  Polearm:         `<svg viewBox="0 0 100 100"><rect x="48" y="20" width="4" height="75" rx="1"/><path d="M48 20 L42 5 L50 12 L58 5 L52 20Z"/></svg>`,
+  Bow:             `<svg viewBox="0 0 100 100"><path d="M30 10 Q15 50 30 90" fill="none" stroke="currentColor" stroke-width="5"/><line x1="30" y1="10" x2="30" y2="90" stroke="currentColor" stroke-width="2"/><line x1="30" y1="50" x2="75" y2="50" stroke="currentColor" stroke-width="2"/><polygon points="75,46 90,50 75,54"/></svg>`,
+  Crossbow:        `<svg viewBox="0 0 100 100"><rect x="42" y="45" width="40" height="8" rx="2"/><rect x="55" y="30" width="6" height="40" rx="1"/><path d="M42 49 Q28 40 28 49 Q28 58 42 53" fill="none" stroke="currentColor" stroke-width="4"/><polygon points="82,45 95,49 82,53"/></svg>`,
+  Thrown:          `<svg viewBox="0 0 100 100"><path d="M20 80 L75 15 L85 25 L80 30 L72 22 L25 85Z"/><path d="M72 22 L85 10 L90 20 L78 28Z"/></svg>`,
+  Shield:          `<svg viewBox="0 0 100 100"><path d="M50 10 L85 25 L85 55 Q85 80 50 92 Q15 80 15 55 L15 25Z"/><path d="M50 20 L78 33 L78 55 Q78 73 50 83 Q22 73 22 55 L22 33Z" opacity="0.3"/></svg>`,
+  Arrows:          `<svg viewBox="0 0 100 100"><line x1="25" y1="75" x2="75" y2="25" stroke="currentColor" stroke-width="4"/><polygon points="75,18 82,32 68,32"/><path d="M25,75 L18,82 L22,86 L32,80Z"/><line x1="35" y1="65" x2="65" y2="35" stroke="currentColor" stroke-width="3" opacity="0.5"/><line x1="45" y1="75" x2="75" y2="45" stroke="currentColor" stroke-width="3" opacity="0.5"/></svg>`,
+  Bolts:           `<svg viewBox="0 0 100 100"><rect x="20" y="47" width="60" height="6" rx="1"/><polygon points="80,44 95,50 80,56"/><path d="M20,47 L12,40 L16,50 L12,60 L20,53Z"/><rect x="25" y="37" width="50" height="5" rx="1" opacity="0.5"/><rect x="25" y="58" width="50" height="5" rx="1" opacity="0.5"/></svg>`,
+  // Horse
+  Horse:           `<svg viewBox="0 0 100 100"><path d="M15 65 Q15 45 30 38 L38 20 L48 25 L45 38 Q60 35 70 45 L82 42 L85 50 L75 52 Q78 60 75 70 L68 70 L68 60 Q55 65 45 60 L45 70 L38 70 L38 60 Q28 62 25 70Z"/><path d="M38 20 L42 12 L50 15 L48 25Z"/></svg>`,
+  // Misc
+  Unknown:         `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" stroke-width="5"/><text x="50" y="65" text-anchor="middle" font-size="40" fill="currentColor">?</text></svg>`,
+};
+
+// Маппинг weapon_class → иконка
+const WEAPON_CLASS_ICONS = {
+  'OneHandedSword': 'OneHandedWeapon', 'TwoHandedSword': 'TwoHandedWeapon',
+  'OneHandedAxe': 'OneHandedWeapon', 'TwoHandedAxe': 'TwoHandedWeapon',
+  'Mace': 'OneHandedWeapon', 'TwoHandedMace': 'TwoHandedWeapon',
+  'TwoHandedPolearm': 'Polearm', 'OneHandedPolearm': 'Polearm',
+  'Bow': 'Bow', 'Crossbow': 'Crossbow',
+  'Arrow': 'Arrows', 'Bolt': 'Bolts', 'Cartridge': 'Bolts',
+  'Stone': 'Thrown', 'Javelin': 'Thrown',
+  'SmallShield': 'Shield', 'LargeShield': 'Shield',
+};
+
+function getItemIcon(type, weaponClass) {
+  if (weaponClass && WEAPON_CLASS_ICONS[weaponClass])
+    return ITEM_ICONS[WEAPON_CLASS_ICONS[weaponClass]] || ITEM_ICONS.Unknown;
+  return ITEM_ICONS[type] || ITEM_ICONS.Unknown;
+}
+
+// ═══════════════════════════════════════════════════
+//  SHOKUHO ITEMS DATABASE (встроена из XML)
+// ═══════════════════════════════════════════════════
+// Загружаем из items_db.json (рядом с index.html)
+// или используем встроенный минимальный справочник
+let ITEMS_DB = {};
+async function loadItemsDB() {
+  try {
+    const r = await fetch('./items_db.json');
+    if (r.ok) ITEMS_DB = await r.json();
+  } catch {}
+}
+
+function getItemStats(itemId, itemType) {
+  const db = ITEMS_DB[itemId];
+  if (!db) return null;
+  return db.s || db.stats || null;
+}
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let heroes = [], leaderboard = {}, currentFilter = 'all', currentSearch = '';
+let lbCategory = 'kills';
+
+// ═══════════════════════════════════════════════════
+//  NAV
+// ═══════════════════════════════════════════════════
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelectorAll('.nav-links a').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.page-section').forEach(x => x.classList.remove('active'));
+    a.classList.add('active');
+    document.getElementById('page-' + a.dataset.page).classList.add('active');
+    if (a.dataset.page === 'leaderboard') loadLeaderboard();
+  });
+});
+
+// ═══════════════════════════════════════════════════
+//  DATA FETCH
+// ═══════════════════════════════════════════════════
+async function fetchJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(r.statusText);
+  return r.json();
+}
+
+// ═══════════════════════════════════════════════════
+//  DEMO DATA
+// ═══════════════════════════════════════════════════
+const DEMO_HEROES = [
+  {
+    viewer_name: "jazz_ttv", hero_name: "Kenji Ashikaga", gender: "Male", age: 27,
+    culture: "shokuho", clan_name: "Clan of the Iron Fist", kingdom_name: "Shokuho Shogunate",
+    class_name: "infantry", gold: 1240000, hp: 180, max_hp: 180, level: 14,
+    equipment_tier: 5, status: "alive",
+    skills: [
+      {name:"OneHanded",value:210},{name:"TwoHanded",value:185},{name:"Athletics",value:160},
+      {name:"Polearm",value:140},{name:"Riding",value:95},{name:"Bow",value:60},
+    ],
+    attributes: {Vigor:6, Control:3, Endurance:5, Cunning:2, Social:2, Intelligence:2},
+    equipment: [
+      {id:"sho_suji_kabuto_a",    name:"Suji Kabuto",       type:"HeadArmor",        tier:5, is_custom:false},
+      {id:"sho_yukinoshita_do_a", name:"Yukinoshita Do",    type:"BodyArmor",        tier:5, is_custom:false},
+      {id:"sho_tier_6_kote",      name:"Kojino-gote",       type:"HandArmor",        tier:6, is_custom:false},
+      {id:"sho_tsutsu_suneate_a", name:"Tsutsu Suneate",    type:"LegArmor",         tier:4, is_custom:false},
+      {id:"sho_large_osode_a",    name:"O-Sode",            type:"Cape",             tier:5, is_custom:false},
+      {id:"sho_katana_22",        name:"Tachi no Arashi",   type:"OneHandedWeapon",  tier:5, is_custom:true, custom_name:"Tachi no Arashi"},
+      {id:"sho_yari_18",          name:"Ceremonial Yari",   type:"Polearm",          tier:4, is_custom:false},
+    ],
+    custom_items: [
+      {id:"sho_katana_22", name:"Tachi no Arashi", type:"OneHandedWeapon", tier:5, is_custom:true, custom_name:"Tachi no Arashi",
+       modifiers:{damage:1.25, speed:1.1}},
+    ],
+    retinue: [
+      {name:"Ashigaru Spearman", tier:3, count:2},
+      {name:"Samurai Retainer",  tier:5, count:2},
+      {name:"Mounted Archer",    tier:4, count:1},
+    ],
+    stats: {kills:47, deaths:2, gold_earned:4200000, battles_fought:23, tournament_wins:3},
+    updated_at: Date.now()/1000 - 120,
+    created_at: Date.now()/1000 - 86400 * 14,
+    events: [
+      {type:"kill",        description:"Убил Takeda Cavalry x3 в полевом бою у Kyoto",   time_ago:"5 мин. назад"},
+      {type:"equip",       description:"Получил Tachi no Arashi (Smithed, ×1.25)",        time_ago:"1 ч. назад"},
+      {type:"tournament_win", description:"Победил в турнире в Edo. Золото: +50,000⦷",   time_ago:"3 ч. назад"},
+      {type:"kill",        description:"Убил Ronin Berserker в осаде замка",              time_ago:"5 ч. назад"},
+      {type:"joined_clan", description:"Вступил в Clan of the Iron Fist",                 time_ago:"1 дн. назад"},
+      {type:"adopted",     description:"Создал героя Kenji Ashikaga",                     time_ago:"3 дн. назад"},
+    ],
+  },
+  {
+    viewer_name: "SakuraChan", hero_name: "Hana Mitsuri", gender: "Female", age: 22,
+    culture: "shokuho", clan_name: "Clan of the Iron Fist", kingdom_name: "Shokuho Shogunate",
+    class_name: "archer", gold: 880000, hp: 130, max_hp: 145, level: 11,
+    equipment_tier: 4, status: "alive",
+    skills: [
+      {name:"Bow",value:230},{name:"Athletics",value:175},{name:"OneHanded",value:130},
+      {name:"Throwing",value:110},{name:"Riding",value:80},{name:"Crossbow",value:55},
+    ],
+    attributes: {Vigor:3, Control:7, Endurance:4, Cunning:3, Social:2, Intelligence:1},
+    equipment: [
+      {id:"sho_hineno_zunari_1",  name:"Hineno Zunari Kabuto", type:"HeadArmor",       tier:4, is_custom:false},
+      {id:"sho_samurai_gear_b",   name:"Ronin Robes (Blue)",   type:"BodyArmor",       tier:3, is_custom:false},
+      {id:"sho_tier_4_kote",      name:"Shino-gote",           type:"HandArmor",       tier:4, is_custom:false},
+      {id:"sho_low_tier_suneate_a",name:"Ubu Suneate",         type:"LegArmor",        tier:2, is_custom:false},
+      {id:"sho_kozane_sode_a",    name:"Kozane Sode",          type:"Cape",            tier:3, is_custom:false},
+      {id:"sho_new_yumi_2",       name:"Daikyu",               type:"Bow",             tier:5, is_custom:true, custom_name:"Whispering Daikyu"},
+      {id:"sho_ebira_a",          name:"Ebira Quiver",         type:"Arrows",          tier:4, is_custom:false},
+      {id:"sho_wakizashi_12",     name:"Wakizashi",            type:"OneHandedWeapon", tier:3, is_custom:false},
+    ],
+    custom_items: [
+      {id:"sho_new_yumi_2", name:"Whispering Daikyu", type:"Bow", tier:5, is_custom:true,
+       custom_name:"Whispering Daikyu", modifiers:{missile_speed:1.25, damage:1.15}},
+    ],
+    retinue: [
+      {name:"Yumi Archer",    tier:4, count:3},
+      {name:"Scout Skirmisher",tier:3, count:2},
+    ],
+    stats: {kills:62, deaths:1, gold_earned:2800000, battles_fought:19, tournament_wins:1},
+    updated_at: Date.now()/1000 - 600,
+    created_at: Date.now()/1000 - 86400 * 10,
+    events: [
+      {type:"kill",     description:"42-метровый выстрел — убил командира конницы",     time_ago:"12 мин. назад"},
+      {type:"kill",     description:"Explosive Arrows: убила 4 врагов одним выстрелом", time_ago:"2 ч. назад"},
+      {type:"equip",    description:"Скрафтила Whispering Daikyu (Smithed Bow, ×1.25)", time_ago:"6 ч. назад"},
+      {type:"levelup",  description:"Навык Bow достиг 230 — мастер лука",               time_ago:"1 дн. назад"},
+    ],
+  },
+  {
+    viewer_name: "IronWolf88", hero_name: "Ryu Kurosawa", gender: "Male", age: 35,
+    culture: "shokuho", clan_name: "Shadow Council", kingdom_name: null,
+    class_name: "berserker", gold: 330000, hp: 95, max_hp: 200, level: 9,
+    equipment_tier: 4, status: "alive",
+    skills: [
+      {name:"TwoHanded",value:195},{name:"Athletics",value:210},{name:"OneHanded",value:150},
+      {name:"Polearm",value:90},{name:"Medicine",value:45},
+    ],
+    attributes: {Vigor:5, Control:2, Endurance:6, Cunning:4, Social:1, Intelligence:2},
+    equipment: [
+      {id:"sho_hachigane_a_1",    name:"Hachigane Helm",      type:"HeadArmor",       tier:2, is_custom:false},
+      {id:"sho_kosodehakama_3",   name:"Battle Kosode",       type:"BodyArmor",       tier:3, is_custom:false},
+      {id:"sho_tier_3_kote",      name:"Kote",                type:"HandArmor",       tier:3, is_custom:false},
+      {id:"sho_low_tier_suneate_b",name:"Suneate",            type:"LegArmor",        tier:2, is_custom:false},
+      {id:"sho_nodachi_7",        name:"Soul Reaver",         type:"TwoHandedWeapon", tier:4, is_custom:true, custom_name:"Soul Reaver"},
+    ],
+    custom_items: [
+      {id:"sho_nodachi_7", name:"Soul Reaver", type:"TwoHandedWeapon", tier:4, is_custom:true,
+       custom_name:"Soul Reaver", modifiers:{damage:1.25}},
+    ],
+    retinue: [
+      {name:"Ronin Berserker", tier:4, count:3},
+      {name:"Ashigaru",        tier:2, count:2},
+    ],
+    stats: {kills:88, deaths:8, gold_earned:1900000, battles_fought:31, tournament_wins:0},
+    updated_at: Date.now()/1000 - 3600,
+    created_at: Date.now()/1000 - 86400 * 21,
+    events: [
+      {type:"death",    description:"Пал в бою — окружён 6 врагами. Берсерк до конца.",  time_ago:"1 ч. назад"},
+      {type:"kill",     description:"Берсерк-раж: убил 7 врагов за 40 секунд",           time_ago:"1 ч. назад"},
+      {type:"kill",     description:"Убил лидера отряда ронинов Soul Reaver'ом",          time_ago:"4 ч. назад"},
+      {type:"equip",    description:"Получил Soul Reaver на турнире (призовой предмет)",  time_ago:"2 дн. назад"},
+    ],
+  },
+  {
+    viewer_name: "NaginataQueen", hero_name: "Yuki Tokugawa", gender: "Female", age: 29,
+    culture: "shokuho", clan_name: "Clan of the Iron Fist", kingdom_name: "Shokuho Shogunate",
+    class_name: "cavalry", gold: 2100000, hp: 165, max_hp: 165, level: 16,
+    equipment_tier: 6, status: "alive",
+    skills: [
+      {name:"Riding",value:255},{name:"Polearm",value:220},{name:"OneHanded",value:170},
+      {name:"Athletics",value:120},{name:"Leadership",value:85},{name:"Tactics",value:70},
+    ],
+    attributes: {Vigor:5, Control:3, Endurance:6, Cunning:4, Social:3, Intelligence:3},
+    equipment: [
+      {id:"sho_suji_kabuto_menpo_b", name:"Suji Kabuto с Menpo",  type:"HeadArmor",   tier:6, is_custom:false},
+      {id:"sho_mogami_do_a",         name:"Mogami Do",            type:"BodyArmor",   tier:6, is_custom:false},
+      {id:"sho_tier_7_kote",         name:"Kojino-gote (Master)", type:"HandArmor",   tier:6, is_custom:true, custom_name:"Smithed Kote"},
+      {id:"sho_shino_suneate_a",     name:"Shino Suneate",        type:"LegArmor",    tier:5, is_custom:false},
+      {id:"sho_mogami_sode_a",       name:"Mogami Sode",          type:"Cape",        tier:6, is_custom:false},
+      {id:"sho_naginata_15",         name:"Crimson Naginata",     type:"Polearm",     tier:6, is_custom:true, custom_name:"Crimson Naginata"},
+      {id:"sho_horse_oni_11",        name:"Oni Warhorse",         type:"Horse",       tier:5, is_custom:false},
+    ],
+    custom_items: [
+      {id:"sho_naginata_15", name:"Crimson Naginata", type:"Polearm", tier:6, is_custom:true,
+       custom_name:"Crimson Naginata", modifiers:{damage:1.25, speed:1.15}},
+      {id:"sho_tier_7_kote", name:"Smithed Kote", type:"HandArmor", tier:6, is_custom:true,
+       custom_name:"Smithed Kote", modifiers:{armor:1.25}},
+    ],
+    retinue: [
+      {name:"Heavy Cavalry",      tier:5, count:3},
+      {name:"Kibamushа Lancer",   tier:6, count:2},
+    ],
+    stats: {kills:103, deaths:0, gold_earned:6500000, battles_fought:42, tournament_wins:5},
+    updated_at: Date.now()/1000 - 180,
+    events: [
+      {type:"kill",          description:"Trample: 5 врагов растоптаны в одной атаке",     time_ago:"3 мин. назад"},
+      {type:"tournament_win",description:"Победила в турнире №5. Золото: +50,000⦷",        time_ago:"8 ч. назад"},
+      {type:"kill",          description:"Flanking charge — уничтожила лучников противника",time_ago:"1 дн. назад"},
+      {type:"equip",         description:"Скрафтила Crimson Naginata (×1.25 урон)",        time_ago:"2 дн. назад"},
+      {type:"levelup",       description:"Riding 255 — элита конных воинов",               time_ago:"3 дн. назад"},
+    ],
+  },
+  {
+    viewer_name: "TeppoBoy", hero_name: "Noboru Tanaka", gender: "Male", age: 19,
+    culture: "shokuho", clan_name: null, kingdom_name: null,
+    class_name: "crossbow", gold: 95000, hp: 110, max_hp: 110, level: 4,
+    equipment_tier: 2, status: "alive",
+    skills: [
+      {name:"Crossbow",value:95},{name:"Athletics",value:80},{name:"OneHanded",value:55},
+    ],
+    attributes: {Vigor:2, Control:3, Endurance:2, Cunning:1, Social:1, Intelligence:1},
+    equipment: [
+      {id:"sho_jingasa_a_1",      name:"Jingasa",              type:"HeadArmor",    tier:2, is_custom:false},
+      {id:"sho_kosodehakama_1",   name:"Ashigaru Kosode",      type:"BodyArmor",    tier:1, is_custom:false},
+      {id:"sho_nanban_teppo_a",   name:"Nanban Teppo",         type:"Crossbow",     tier:3, is_custom:false},
+      {id:"teppo_ammo",           name:"Teppo Ammo",           type:"Bolts",        tier:2, is_custom:false},
+    ],
+    custom_items: [],
+    retinue: [{name:"Ashigaru Teppo", tier:2, count:2}],
+    stats: {kills:8, deaths:3, gold_earned:210000, battles_fought:6, tournament_wins:0},
+    updated_at: Date.now()/1000 - 7200,
+    events: [
+      {type:"kill",    description:"Первое убийство! Teppo выстрел с 60 метров",    time_ago:"2 ч. назад"},
+      {type:"death",   description:"Погиб в бою — слишком близко к врагу",          time_ago:"3 ч. назад"},
+      {type:"adopted", description:"Создал героя Noboru Tanaka",                    time_ago:"1 дн. назад"},
+    ],
+  },
+  {
+    viewer_name: "OldBushido", hero_name: "Genzo Yamamoto", gender: "Male", age: 52,
+    culture: "shokuho", clan_name: "Shadow Council", kingdom_name: null,
+    class_name: "infantry", gold: 0, hp: 0, max_hp: 170, level: 18,
+    equipment_tier: 6, status: "dead",
+    skills: [
+      {name:"OneHanded",value:280},{name:"Polearm",value:240},{name:"Athletics",value:190},
+      {name:"Leadership",value:130},{name:"Tactics",value:110},{name:"Bow",value:75},
+    ],
+    attributes: {Vigor:8, Control:3, Endurance:5, Cunning:5, Social:4, Intelligence:3},
+    equipment: [
+      {id:"sho_saiga_kabuto_a",  name:"Saiga Kabuto",       type:"HeadArmor",      tier:6, is_custom:false},
+      {id:"sho_ashi_go_mai_a",   name:"Ashi Go Mai Do",     type:"BodyArmor",      tier:6, is_custom:false},
+      {id:"sho_tier_7_kote",     name:"Kojino-gote",        type:"HandArmor",      tier:6, is_custom:false},
+      {id:"sho_shino_suneate_a", name:"Shino Suneate",      type:"LegArmor",       tier:5, is_custom:false},
+      {id:"sho_new_kozane_sode_a",name:"Kozane Sode",       type:"Cape",           tier:5, is_custom:false},
+      {id:"sho_katana_31",       name:"Last Breath",        type:"OneHandedWeapon",tier:6, is_custom:true, custom_name:"Last Breath"},
+    ],
+    custom_items: [
+      {id:"sho_katana_31", name:"Last Breath", type:"OneHandedWeapon", tier:6, is_custom:true,
+       custom_name:"Last Breath", modifiers:{damage:1.25, speed:1.25}},
+    ],
+    retinue: [],
+    stats: {kills:247, deaths:12, gold_earned:18000000, battles_fought:94, tournament_wins:11},
+    updated_at: Date.now()/1000 - 86400,
+    events: [
+      {type:"death",    description:"Пал в финальном сражении. 247 убийств. Легенда.",   time_ago:"1 дн. назад"},
+      {type:"kill",     description:"Последний бой: убил 9 врагов прежде чем упасть",    time_ago:"1 дн. назад"},
+      {type:"tournament_win", description:"11-й турнир. Непобеждённый чемпион.",         time_ago:"3 дн. назад"},
+    ],
+  },
+  {
+    viewer_name: "YabusamaFan", hero_name: "Taro Matsumoto", gender: "Male", age: 24,
+    culture: "shokuho", clan_name: "Shadow Council", kingdom_name: null,
+    class_name: "horsearcher", gold: 560000, hp: 140, max_hp: 140, level: 8,
+    equipment_tier: 3, status: "alive",
+    skills: [
+      {name:"Bow",value:175},{name:"Riding",value:185},{name:"Athletics",value:100},
+      {name:"OneHanded",value:85},{name:"Throwing",value:70},
+    ],
+    attributes: {Vigor:3, Control:5, Endurance:4, Cunning:3, Social:2, Intelligence:2},
+    equipment: [
+      {id:"sho_kasa_a_1",         name:"Kasa Hat",             type:"HeadArmor",    tier:3, is_custom:false},
+      {id:"sho_kosodehakama_2",   name:"Cavalry Kosode",       type:"BodyArmor",    tier:3, is_custom:false},
+      {id:"sho_tier_3_kote",      name:"Kote",                 type:"HandArmor",    tier:3, is_custom:false},
+      {id:"sho_low_tier_suneate_a",name:"Suneate",             type:"LegArmor",     tier:2, is_custom:false},
+      {id:"sho_small_sode_a",     name:"Small Sode",           type:"Cape",         tier:2, is_custom:false},
+      {id:"sho_new_yumi_1",       name:"Yumi",                 type:"Bow",          tier:3, is_custom:false},
+      {id:"sho_ebira_a",          name:"Ebira Quiver",         type:"Arrows",       tier:3, is_custom:false},
+      {id:"sho_horse_tier3_a",    name:"Cavalry Horse",        type:"Horse",        tier:3, is_custom:false},
+    ],
+    custom_items: [],
+    retinue: [
+      {name:"Horse Archer",   tier:3, count:4},
+      {name:"Scout",          tier:2, count:1},
+    ],
+    stats: {kills:34, deaths:4, gold_earned:980000, battles_fought:17, tournament_wins:2},
+    updated_at: Date.now()/1000 - 900,
+    created_at: Date.now()/1000 - 86400 * 8,
+    events: [
+      {type:"kill",     description:"Конная атака: 3 пехотинца в одном заезде",          time_ago:"15 мин. назад"},
+      {type:"kill",     description:"Стрельба с галопа — двойное убийство",              time_ago:"4 ч. назад"},
+      {type:"levelup",  description:"Riding 185 — мастер конной стрельбы",               time_ago:"2 дн. назад"},
+    ],
+  },
+];
+
+// Демо-лидерборд из тех же данных
+function buildDemoLeaderboard() {
+  const h = DEMO_HEROES;
+  function board(key) {
+    return [...h].sort((a,b) => (b.stats[key]||0) - (a.stats[key]||0)).slice(0,10)
+      .map(x => ({viewer_name:x.viewer_name, hero_name:x.hero_name, clan:x.clan_name, value:x.stats[key]||0}));
+  }
+  return {
+    kills:           board('kills'),
+    gold_earned:     board('gold_earned'),
+    tournament_wins: board('tournament_wins'),
+    battles_fought:  board('battles_fought'),
+  };
+}
+
+// Демо глобальная статистика
+function buildDemoStats() {
+  const alive = DEMO_HEROES.filter(h => h.status !== 'dead').length;
+  const kills = DEMO_HEROES.reduce((s,h) => s + (h.stats.kills||0), 0);
+  const events = DEMO_HEROES.reduce((s,h) => s + h.events.length, 0);
+  return {alive_heroes: alive, total_kills: kills, total_events: events};
+}
+
+// ─── HELPERS ───
+let isDemoMode = false;
+
+async function loadHeroes() {
+  try {
+    const data = await fetchJSON(`${API}/api/heroes`);
+    heroes = data.heroes;
+    isDemoMode = false;
+    renderHeroes();
+  } catch(e) {
+    // API недоступен — используем демо-данные
+    isDemoMode = true;
+    heroes = DEMO_HEROES.map(h => ({
+      viewer_name:    h.viewer_name,
+      hero_name:      h.hero_name,
+      level:          h.level,
+      class_name:     h.class_name,
+      clan_name:      h.clan_name,
+      gold:           h.gold,
+      stats:          h.stats,
+      equipment_tier: h.equipment_tier,
+      status:         h.status,
+      updated_at:     h.updated_at,
+      culture:        h.culture,
+      gender:         h.gender,
+      hp:             h.hp,
+      max_hp:         h.max_hp,
+    }));
+    showDemoBanner();
+    renderHeroes();
+  }
+}
+
+async function loadGlobalStats() {
+  try {
+    const d = await fetchJSON(`${API}/api/stats`);
+    document.getElementById('stat-heroes').textContent = d.alive_heroes;
+    document.getElementById('stat-kills').textContent  = fmtNum(d.total_kills);
+    document.getElementById('stat-events').textContent = fmtNum(d.total_events);
+  } catch {
+    if (isDemoMode) {
+      const d = buildDemoStats();
+      document.getElementById('stat-heroes').textContent = d.alive_heroes;
+      document.getElementById('stat-kills').textContent  = fmtNum(d.total_kills);
+      document.getElementById('stat-events').textContent = fmtNum(d.total_events);
+    }
+  }
+}
+
+async function loadLeaderboard() {
+  document.getElementById('lb-content').innerHTML = '<div class="loading">Loading</div>';
+  try {
+    leaderboard = await fetchJSON(`${API}/api/leaderboard`);
+    renderLeaderboard();
+  } catch(e) {
+    if (isDemoMode) {
+      leaderboard = buildDemoLeaderboard();
+      renderLeaderboard();
+    } else {
+      document.getElementById('lb-content').innerHTML = `<div class="empty-state">${e.message}</div>`;
+    }
+  }
+}
+
+function showDemoBanner() {
+  const existing = document.getElementById('demo-banner');
+  if (existing) return;
+  const banner = document.createElement('div');
+  banner.id = 'demo-banner';
+  banner.style.cssText = `
+    background: rgba(200,146,42,0.1);
+    border-bottom: 1px solid rgba(200,146,42,0.35);
+    text-align: center;
+    padding: 6px 1rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    color: #c8922a;
+    position: relative; z-index: 5;
+  `;
+  banner.textContent = '✦ DEMO MODE — API не подключён, показаны тестовые персонажи ✦';
+  document.querySelector('.scroll-banner').after(banner);
+}
+
+
+
+// ═══════════════════════════════════════════════════
+//  RENDER HEROES
+// ═══════════════════════════════════════════════════
+function renderHeroes() {
+  let list = heroes;
+  if (currentFilter === 'alive') list = list.filter(h => h.status !== 'dead');
+  if (currentFilter === 'dead')  list = list.filter(h => h.status === 'dead');
+  if (currentSearch) {
+    const q = currentSearch.toLowerCase();
+    list = list.filter(h =>
+      h.hero_name?.toLowerCase().includes(q) ||
+      h.viewer_name?.toLowerCase().includes(q) ||
+      h.clan_name?.toLowerCase().includes(q)
+    );
+  }
+
+  const grid = document.getElementById('heroes-grid');
+  if (!list.length) { grid.innerHTML = '<div class="empty-state">No heroes found</div>'; return; }
+
+  grid.innerHTML = list.map((h, i) => {
+    const equip = (h.equipment || []).slice(0, 8);
+    const equipIcons = equip.map(item => {
+      const wc = item.weapon_class || (item.stats?.weapons?.[0]?.weapon_class) || '';
+      const icon = getItemIcon(item.type, wc);
+      return `<div class="card-equip-icon ${item.is_custom ? 'custom' : ''}" title="${esc(item.name)}">${icon}</div>`;
+    }).join('');
+
+    return `
+    <div class="hero-card ${h.status === 'dead' ? 'dead' : ''}"
+         style="animation-delay:${i*0.04}s"
+         data-viewer="${h.viewer_name}">
+      <div class="card-portrait">
+        <div class="card-equip-row">${equipIcons || '<span style="color:rgba(200,146,42,0.3);font-size:0.7rem;font-family:Cinzel,serif;letter-spacing:0.12em">NO EQUIPMENT</span>'}</div>
+        <div class="card-panel-meta">
+          <span class="card-panel-class">${esc(h.class_name || '')}</span>
+          <div style="display:flex;gap:3px">
+            ${[1,2,3,4,5,6].map(t =>
+              `<div class="tier-pip ${t <= (h.equipment_tier||0) ? 'filled' : ''}"></div>`
+            ).join('')}
+          </div>
+        </div>
+        <div class="card-culture-badge">${fmtCulture(h.culture)}</div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${esc(h.hero_name)}</div>
+        <div class="card-viewer">@${esc(h.viewer_name)}</div>
+        ${h.clan_name ? `<div class="card-clan" style="margin-top:3px;font-size:0.72rem;color:var(--jade);font-style:italic">${esc(h.clan_name)}</div>` : ''}
+        <div class="card-stats">
+          <div class="cstat">
+            <span class="cstat-val">${h.stats?.kills || 0}</span>
+            <span class="cstat-label">Kills</span>
+          </div>
+          <div class="cstat">
+            <span class="cstat-val" style="color:var(--gold)">${fmtGold(h.gold)}</span>
+            <span class="cstat-label">💰 Gold</span>
+          </div>
+          <div class="cstat">
+            <span class="cstat-val">${h.level || 1}</span>
+            <span class="cstat-label">Level</span>
+          </div>
+        </div>
+        <div class="card-hp-bar">
+          <div class="card-hp-fill" style="width:${calcHpPct(h)}%"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.hero-card').forEach(card => {
+    card.addEventListener('click', () => openModal(card.dataset.viewer));
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  PORTRAIT SVG
+// ═══════════════════════════════════════════════════
+function makePortraitSVG(h) {
+  // Генерируем уникальный SVG-портрет из параметров персонажа
+  const isFemale = h.gender === 'Female';
+  const skinTones = ['#f5d5a8','#e8ba80','#d4956a','#b87042','#8b5e38','#5c3d22'];
+  const skin = skinTones[h.viewer_name?.charCodeAt(0) % skinTones.length] || '#d4956a';
+
+  const hairColors = ['#1a0a00','#3d1f00','#7d4a1a','#c8860a','#e8c860','#c0c0c0'];
+  const hair = hairColors[h.viewer_name?.charCodeAt(1) % hairColors.length] || '#1a0a00';
+
+  const classColors = {
+    infantry: '#8b1a1a', archer: '#2d6b4a', cavalry: '#1a3d6b',
+    berserker: '#6b1a4a', crossbow: '#4a5a1a', skirmisher: '#6b4a1a',
+    horsearcher: '#1a6b6b', camelarcher: '#6b5a1a',
+  };
+  const accentColor = classColors[h.class_name?.toLowerCase()] || '#8b6914';
+
+  return `<svg class="portrait-svg" viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bg_${esc(h.viewer_name)}" cx="50%" cy="40%">
+        <stop offset="0%" stop-color="${accentColor}" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#0d0a08" stop-opacity="1"/>
+      </radialGradient>
+    </defs>
+    <!-- Background -->
+    <rect width="180" height="120" fill="url(#bg_${esc(h.viewer_name)})"/>
+    <!-- Decorative circle -->
+    <circle cx="90" cy="54" r="40" fill="none" stroke="${accentColor}" stroke-width="0.5" opacity="0.4"/>
+    <!-- Body silhouette -->
+    <ellipse cx="90" cy="105" rx="24" ry="12" fill="${skin}" opacity="0.25"/>
+    <rect x="72" y="72" width="36" height="40" rx="3" fill="${accentColor}" opacity="0.6"/>
+    <!-- Head -->
+    <ellipse cx="90" cy="${isFemale ? 52 : 54}" rx="${isFemale ? 14 : 15}" ry="${isFemale ? 16 : 17}" fill="${skin}"/>
+    <!-- Hair -->
+    ${isFemale
+      ? `<ellipse cx="90" cy="42" rx="14" ry="10" fill="${hair}"/>
+         <ellipse cx="76" cy="52" rx="4" ry="8" fill="${hair}"/>
+         <ellipse cx="104" cy="52" rx="4" ry="8" fill="${hair}"/>`
+      : `<ellipse cx="90" cy="40" rx="15" ry="8" fill="${hair}"/>
+         <rect x="75" y="38" width="30" height="10" fill="${hair}"/>`
+    }
+    <!-- Eyes -->
+    <circle cx="83" cy="${isFemale ? 51 : 53}" r="2.5" fill="#1a0a00"/>
+    <circle cx="97" cy="${isFemale ? 51 : 53}" r="2.5" fill="#1a0a00"/>
+    <circle cx="84" cy="${isFemale ? 50 : 52}" r="0.8" fill="white" opacity="0.7"/>
+    <circle cx="98" cy="${isFemale ? 50 : 52}" r="0.8" fill="white" opacity="0.7"/>
+    <!-- Armor shine -->
+    <path d="M72 72 Q90 68 108 72 L108 90 Q90 94 72 90 Z"
+          fill="${accentColor}" opacity="0.5"/>
+    <line x1="72" y1="72" x2="108" y2="72" stroke="${accentColor}" stroke-width="1" opacity="0.8"/>
+    <!-- Status indicator -->
+    ${h.status === 'dead'
+      ? `<text x="90" y="16" text-anchor="middle" font-size="9"
+               font-family="serif" fill="#cc2200" opacity="0.9">✦ FALLEN ✦</text>`
+      : `<circle cx="168" cy="12" r="4" fill="#2d6b4a" opacity="0.9"/>
+         <circle cx="168" cy="12" r="2" fill="#4a9968"/>`
+    }
+    <!-- Viewer initial watermark -->
+    <text x="90" y="115" text-anchor="middle" font-size="7"
+          font-family="serif" fill="white" opacity="0.3"
+          letter-spacing="2">${esc(h.viewer_name?.toUpperCase().slice(0,10) || '')}</text>
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════════════════
+async function openModal(viewerName) {
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.add('open');
+  document.getElementById('modal-name').textContent = 'Loading…';
+  document.getElementById('modal-viewer').textContent = '@' + viewerName;
+
+  // Демо-режим — берём из локального массива
+  if (isDemoMode) {
+    const hero = DEMO_HEROES.find(h => h.viewer_name === viewerName);
+    if (hero) {
+      populateModal(hero, hero.events || []);
+    } else {
+      document.getElementById('modal-name').textContent = 'Hero not found';
+    }
+    return;
+  }
+
+  try {
+    const [hero, eventsData] = await Promise.all([
+      fetchJSON(`${API}/api/hero/${viewerName}`),
+      fetchJSON(`${API}/api/hero/${viewerName}/events`).catch(() => ({ events: [] }))
+    ]);
+    populateModal(hero, eventsData.events);
+  } catch(e) {
+    document.getElementById('modal-name').textContent = 'Error: ' + e.message;
+  }
+}
+
+function populateModal(h, events) {
+  // Portrait — убрали, больше не нужен
+
+  // Name + viewer
+  document.getElementById('modal-name').textContent = h.hero_name;
+  document.getElementById('modal-viewer').textContent = '@' + h.viewer_name
+    + ` · ${h.gender}, age ${h.age}`;
+
+  // Created at
+  const createdEl = document.getElementById('modal-created');
+  if (h.created_at && h.created_at > 0) {
+    const d = new Date(h.created_at * 1000);
+    createdEl.textContent = `⚔ Hero since ${d.toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}`;
+  } else {
+    createdEl.textContent = '';
+  }
+
+  // Badges
+  const badges = [];
+  if (h.class_name)    badges.push(`<span class="badge badge-class">${esc(h.class_name)}</span>`);
+  if (h.clan_name)     badges.push(`<span class="badge badge-clan">${esc(h.clan_name)}</span>`);
+  if (h.kingdom_name)  badges.push(`<span class="badge badge-kingdom">${esc(h.kingdom_name)}</span>`);
+  if (h.culture)       badges.push(`<span class="badge badge-culture">${fmtCulture(h.culture)}</span>`);
+  document.getElementById('modal-badges').innerHTML = badges.join('');
+
+  // Stats row
+  const stats = h.stats || {};
+  const heroKills = stats.hero_kills || 0;
+  const viewerKills = stats.viewer_kills || 0;
+  const streamerKills = stats.streamer_kills || 0;
+  const mountKills = stats.mount_kills || 0;
+  const killBreakdown = (heroKills || viewerKills || streamerKills || mountKills)
+    ? `<br><small style="color:#aaa;font-size:0.7em">⚔️${heroKills} 👁️${viewerKills} 📺${streamerKills} 🐴${mountKills}</small>`
+    : '';
+  document.getElementById('modal-stat-row').innerHTML = [
+    ['Kills',     (stats.kills || 0) + killBreakdown],
+    ['Deaths',    stats.deaths || 0],
+    ['Gold',      fmtGold(h.gold)],
+    ['Battles',   stats.battles_fought || 0],
+    ['Tourney W', stats.tournament_wins || 0],
+    ['Summons',   stats.summons || 0],
+    ['Attacks',   stats.attacks || 0],
+  ].map(([lbl, val]) => `
+    <div class="modal-stat">
+      <div class="modal-stat-val" ${lbl === 'Gold' ? 'style="color:var(--gold)"' : ''}>${val}</div>
+      <div class="modal-stat-label">${lbl === 'Gold' ? '💰 ' + lbl : lbl}</div>
+    </div>
+  `).join('');
+
+  // HP
+  const hpPct = h.max_hp > 0 ? Math.round(h.hp / h.max_hp * 100) : 100;
+  document.getElementById('modal-hp-fill').style.width = hpPct + '%';
+  document.getElementById('modal-hp-label').textContent = `${h.hp} / ${h.max_hp} HP`;
+
+  // Equipment tab
+  const eqLabels = {
+    HeadArmor:'Helm', BodyArmor:'Armour', LegArmor:'Greaves', HandArmor:'Gauntlets',
+    Cape:'Cape / Sode', HorseHarness:'Horse Armour',
+    OneHandedWeapon:'1H Weapon', TwoHandedWeapon:'2H Weapon',
+    Polearm:'Polearm', Bow:'Bow', Crossbow:'Crossbow / Teppo',
+    Thrown:'Thrown', Shield:'Shield', Arrows:'Arrows', Bolts:'Bolts / Ammo',
+    Horse:'Horse', Bullets:'Heavy Ammo',
+  };
+
+  function renderItemStats(item) {
+    const dbStats = getItemStats(item.id, item.type) || {};
+    const s = Object.assign({}, dbStats, item.modifiers || {}, item.stats || {});
+    const rows = [];
+
+    // Armor
+    if (s.head_armor)  rows.push(['Head',   s.head_armor,  'high']);
+    if (s.body_armor)  rows.push(['Body',   s.body_armor,  'high']);
+    if (s.arm_armor)   rows.push(['Arms',   s.arm_armor,   'med']);
+    if (s.leg_armor)   rows.push(['Legs',   s.leg_armor,   'med']);
+    if (s.extra_armor) rows.push(['Extra',  s.extra_armor, 'med']);
+
+    // Weapon — try db format (weapons array) first, then flat C# mod format
+    const wp = (s.weapons || [])[0];
+    if (wp) {
+      const dmgType = (wp.swing_damage_type || wp.thrust_damage_type || '').slice(0,1);
+      if (wp.swing_damage)  rows.push(['Swing',  `${wp.swing_damage}${dmgType}`, 'dmg']);
+      if (wp.thrust_damage) rows.push(['Thrust', `${wp.thrust_damage}${dmgType}`, 'dmg']);
+      if (wp.speed_rating)  rows.push(['Speed',  wp.speed_rating, 'med']);
+      if (wp.missile_speed && +wp.missile_speed > 1) rows.push(['Velocity', wp.missile_speed, 'med']);
+      if (wp.weapon_length) rows.push(['Length', wp.weapon_length, '']);
+      if (wp.accuracy)      rows.push(['Acc',    wp.accuracy, 'med']);
+      if (wp.stack_amount)  rows.push(['Stack',  wp.stack_amount, '']);
+    } else {
+      // Flat weapon stats from C# mod
+      const dmgType = ((s.swing_damage_type || s.thrust_damage_type || '') + '').slice(0,1);
+      if (s.swing_damage)  rows.push(['Swing',  `${s.swing_damage}${dmgType}`, 'dmg']);
+      if (s.thrust_damage) rows.push(['Thrust', `${s.thrust_damage}${dmgType}`, 'dmg']);
+      if (s.speed_rating)  rows.push(['Speed',  s.speed_rating, 'med']);
+      if (s.missile_speed && +s.missile_speed > 1) rows.push(['Velocity', s.missile_speed, 'med']);
+      if (s.weapon_length) rows.push(['Length', s.weapon_length, '']);
+      if (s.accuracy)      rows.push(['Acc',    s.accuracy, 'med']);
+      if (s.stack_amount)  rows.push(['Stack',  s.stack_amount, '']);
+    }
+
+    // Horse — db uses speed/maneuver/charge_damage/extra_health; C# mod uses horse_* prefix
+    const hSpd = s.speed || s.horse_speed;
+    const hMan = s.maneuver || s.horse_maneuver;
+    const hChg = s.charge_damage || s.horse_charge;
+    const hHP  = s.extra_health || s.horse_hp;
+    if (hSpd) rows.push(['Speed',  hSpd, 'high']);
+    if (hMan) rows.push(['Maneuv', hMan, 'med']);
+    if (hChg) rows.push(['Charge', hChg, 'dmg']);
+    if (hHP)  rows.push(['HP+',    hHP,  'high']);
+
+    // Modifiers (кастомные)
+    if (item.modifiers) {
+      const modMap = {armor:'Armor×', damage:'Dmg×', speed:'Spd×',
+                      missile_speed:'Vel×', armor_ignore:'ArmorIgn×'};
+      for (const [k,v] of Object.entries(item.modifiers)) {
+        rows.push([modMap[k] || k, v.toFixed ? v.toFixed(2) : v, 'high']);
+      }
+    }
+
+    if (s.weight) rows.push(['Weight', (+s.weight).toFixed(2) + ' kg', '']);
+
+    if (!rows.length) return '';
+    return `<div class="equip-stats">
+      ${rows.map(([lbl, val, cls]) =>
+        `<div class="estat">
+          <span class="estat-val ${cls}">${val}</span>
+          <span class="estat-label">${lbl}</span>
+        </div>`
+      ).join('')}
+    </div>`;
+  }
+
+  const allItems = [...(h.equipment || []), ...(h.custom_items || [])];
+  // Дедуплицируем — custom items могут дублировать equipment
+  const seen = new Set();
+  const uniqueItems = allItems.filter(it => {
+    if (seen.has(it.id)) return false;
+    seen.add(it.id); return true;
+  });
+
+  document.getElementById('tab-equipment').innerHTML = uniqueItems.length
+    ? `<div class="equip-grid">
+        ${uniqueItems.map(item => {
+          const wc = item.stats?.weapons?.[0]?.weapon_class || '';
+          const icon = getItemIcon(item.type, wc);
+          const tier = item.tier || 0;
+          const statsHtml = renderItemStats(item);
+          return `
+          <div class="equip-slot ${item.is_custom ? 'custom-item' : ''}">
+            <div class="equip-slot-header">
+              <div class="equip-icon-wrap">${icon}</div>
+              <div class="equip-slot-info">
+                <div class="equip-slot-type">${eqLabels[item.type] || item.type}</div>
+                <div class="equip-slot-name">${esc(item.custom_name || item.name)}</div>
+                ${item.is_custom ? `<div class="equip-custom-label">✦ Custom Smithed</div>` : ''}
+              </div>
+            </div>
+            ${statsHtml}
+            <div class="equip-tier-row">
+              ${[1,2,3,4,5,6].map(t =>
+                `<div class="equip-tier-dot ${t <= tier ? 'on' : ''}"></div>`
+              ).join('')}
+              <span class="equip-slot-weight">Tier ${tier}</span>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`
+    : '<div class="empty-state">No equipment data</div>';
+
+  // Skills tab
+  const skills = (h.skills || []).filter(s => s.value > 0)
+    .sort((a, b) => b.value - a.value);
+  document.getElementById('tab-skills').innerHTML = `
+    <div class="skills-grid">
+      ${skills.map(s => `
+        <div class="skill-row">
+          <span class="skill-name">${fmtSkill(s.name)}</span>
+          <div class="skill-bar-wrap">
+            <div class="skill-bar-fill" style="width:${Math.min(s.value / 3.3, 100)}%"></div>
+          </div>
+          <span class="skill-val">${s.value}</span>
+        </div>
+      `).join('')}
+    </div>
+    ${(h.attributes && Object.keys(h.attributes).length) ? `
+      <div style="margin-top:1.5rem; border-top:1px solid var(--ash); padding-top:1rem">
+        <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.2em;color:var(--stone);text-transform:uppercase;margin-bottom:0.8rem">Attributes</div>
+        <div style="display:flex;gap:1.5rem;flex-wrap:wrap">
+          ${Object.entries(h.attributes).map(([k, v]) => `
+            <div class="cstat">
+              <span class="cstat-val">${v}</span>
+              <span class="cstat-label">${k}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+  `;
+
+  // Retinue tab
+  const retinue = h.retinue || [];
+  document.getElementById('tab-retinue').innerHTML = retinue.length
+    ? `<div class="retinue-list">
+        ${retinue.map(r => `
+          <div class="retinue-item">
+            <span class="retinue-name">${esc(r.name)} × ${r.count}</span>
+            <span class="retinue-tier">Tier ${r.tier}</span>
+          </div>
+        `).join('')}
+      </div>`
+    : '<div class="empty-state">No retinue</div>';
+
+  // Statistics tab
+  (function() {
+    const s = h.stats || {};
+    function sc(val, label, sub, goldClass) {
+      return `<div class="stat-cell">
+        <div class="stat-cell-val${goldClass ? ' gold-val' : ''}">${val}</div>
+        <div class="stat-cell-label">${label}</div>
+        ${sub ? `<div class="stat-cell-sub">${sub}</div>` : ''}
+      </div>`;
+    }
+    function subRow(items) {
+      return items.filter(([,v]) => v).map(([l,v]) => `<span>${l}: <span>${v}</span></span>`).join(' · ');
+    }
+
+    const killSub = subRow([
+      ['⚔️ heroes', s.hero_kills],
+      ['👁️ viewers', s.viewer_kills],
+      ['📺 streamer', s.streamer_kills],
+      ['🐴 mounts', s.mount_kills],
+    ]);
+    const deathSub = subRow([
+      ['⚔️ heroes', s.hero_deaths],
+      ['👁️ viewers', s.viewer_deaths],
+      ['📺 streamer', s.streamer_deaths],
+    ]);
+    const kd = s.deaths > 0 ? (s.kills / s.deaths).toFixed(2) : (s.kills > 0 ? '∞' : '—');
+
+    document.getElementById('tab-stats').innerHTML = `
+      <div class="stats-section">
+        <div class="stats-section-title">⚔️ Combat</div>
+        <div class="stats-grid">
+          ${sc(fmtNum(s.kills || 0), 'Total Kills', killSub)}
+          ${sc(fmtNum(s.deaths || 0), 'Total Deaths', deathSub)}
+          ${sc(kd, 'K / D Ratio')}
+          ${sc(fmtNum(s.battles_fought || 0), 'Battles')}
+        </div>
+      </div>
+      <div class="stats-section">
+        <div class="stats-section-title">🏆 Tournament</div>
+        <div class="stats-grid">
+          ${sc(s.tournament_wins || 0, 'Championships')}
+          ${sc(s.tournament_participations || 0, 'Round Participations')}
+        </div>
+      </div>
+      <div class="stats-section">
+        <div class="stats-section-title">📡 BLT Activity</div>
+        <div class="stats-grid">
+          ${sc(fmtNum(s.summons || 0), 'Summons', s.consecutive_summons ? `🔥 Best streak: ${s.consecutive_summons}` : '')}
+          ${sc(fmtNum(s.attacks || 0), 'Attacks')}
+        </div>
+      </div>
+      <div class="stats-section">
+        <div class="stats-section-title">💰 Gold</div>
+        <div class="stats-grid">
+          ${sc(fmtGold(h.gold || 0), 'Current Gold', '', true)}
+          ${sc(fmtGold(s.spent_gold || 0), 'Spent via BLT', '', true)}
+          ${sc(fmtGold(s.gold_earned_total || 0), 'Gold Earned (total)', '', true)}
+        </div>
+      </div>
+    `;
+  })();
+
+  // Event log tab
+  const eventIcons = {
+    kill: '⚔️', death: '💀', adopted: '🌸', equip: '🗡️',
+    levelup: '⭐', joined_clan: '⛩️', tournament_win: '🏆',
+    retire: '🍃', default: '📜'
+  };
+  document.getElementById('tab-log').innerHTML = events.length
+    ? `<div class="event-log">
+        ${events.map(e => `
+          <div class="event-item">
+            <span class="event-icon">${eventIcons[e.type] || eventIcons.default}</span>
+            <span class="event-desc">${esc(e.description)}</span>
+            <span class="event-time">${e.time_ago}</span>
+          </div>
+        `).join('')}
+      </div>`
+    : '<div class="empty-state">No events recorded yet</div>';
+
+  // Reset to first tab
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.modal-tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector('.modal-tab').classList.add('active');
+  document.getElementById('tab-equipment').classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════
+//  LEADERBOARD
+// ═══════════════════════════════════════════════════
+function renderLeaderboard() {
+  const rankClass = i => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+  const labels = {
+    kills: 'Kills', gold_earned: 'Gold Earned',
+    tournament_wins: 'Tournament Wins', battles_fought: 'Battles',
+  };
+  const rows = leaderboard[lbCategory] || [];
+
+  document.getElementById('lb-content').innerHTML = `
+    <table class="lb-table">
+      <thead>
+        <tr>
+          <th>#</th><th>Hero</th><th>Clan</th>
+          <th>${labels[lbCategory] || lbCategory}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map((r, i) => `
+          <tr>
+            <td><span class="lb-rank ${rankClass(i)}">${i + 1}</span></td>
+            <td>
+              <span class="lb-hero-link" data-viewer="${esc(r.viewer_name)}">
+                ${esc(r.hero_name)}
+              </span>
+              <span style="color:var(--stone);font-size:0.75rem;margin-left:6px">
+                @${esc(r.viewer_name)}
+              </span>
+            </td>
+            <td style="color:var(--jade);font-size:0.85rem;font-style:italic">
+              ${r.clan || '—'}
+            </td>
+            <td><span class="lb-val">${fmtNum(r.value)}</span></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  document.querySelectorAll('.lb-hero-link').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelector('[data-page="heroes"]').click();
+      setTimeout(() => openModal(el.dataset.viewer), 100);
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  EVENT WIRING
+// ═══════════════════════════════════════════════════
+document.getElementById('modal-close').addEventListener('click', () => {
+  document.getElementById('modal-overlay').classList.remove('open');
+});
+
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay'))
+    document.getElementById('modal-overlay').classList.remove('open');
+});
+
+document.querySelectorAll('.modal-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.modal-tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+document.querySelectorAll('#filter-bar .filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderHeroes();
+  });
+});
+
+document.getElementById('search-input').addEventListener('input', e => {
+  currentSearch = e.target.value;
+  renderHeroes();
+});
+
+document.querySelectorAll('#lb-tabs .filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#lb-tabs .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    lbCategory = btn.dataset.lb;
+    renderLeaderboard();
+  });
+});
+
+// ═══════════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════════
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtNum(n) {
+  if (!n) return '0';
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(0) + 'k';
+  return String(n);
+}
+
+function fmtGold(n) { return fmtNum(n); }
+
+function fmtCulture(c) {
+  const map = {
+    'empire': 'Empire', 'battania': 'Battania', 'vlandia': 'Vlandia',
+    'sturgia': 'Sturgia', 'aserai': 'Aserai', 'khuzait': 'Khuzait',
+    'shokuho': 'Shokuho',
+  };
+  return map[c?.toLowerCase()] || (c || 'Unknown');
+}
+
+function fmtSkill(s) {
+  return s?.replace(/([A-Z])/g, ' $1').trim() || s;
+}
+
+function calcHpPct(h) {
+  if (h.status === 'dead') return 0;
+  if (h.max_hp && h.max_hp > 0) return Math.round(h.hp / h.max_hp * 100);
+  return 100;
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+loadItemsDB();
+loadHeroes();
+loadGlobalStats();
+// Автообновление каждые 30 сек
+setInterval(loadHeroes, 30000);
+setInterval(loadGlobalStats, 30000);
+</script>
+</body>
+</html>
